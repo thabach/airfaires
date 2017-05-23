@@ -1,0 +1,13 @@
+version: '2'
+
+networks:
+  ccdashboardplatform_prodnetwork:
+    external: true
+
+services:
+  edmp-sample-stream-sink:
+    image: edmp-sample-stream-sink
+    ports:
+      - "10003:8080"
+    networks:
+      - ccdashboardplatform_prodnetwork

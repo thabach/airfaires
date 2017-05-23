@@ -1,0 +1,5 @@
+FROM maven:3.5.0-jdk-8-alpine
+
+WORKDIR /usr/src/project_to_build
+
+COPY settings.xml /usr/share/maven/ref/
