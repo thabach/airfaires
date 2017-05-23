@@ -1,0 +1,59 @@
+version: '2'
+
+networks:
+
+  kafka_backend:
+    driver: bridge
+
+  service_bus:
+    driver: bridge
+
+services:
+
+  unified-log-producer:
+    image: edmp_producer
+    networks:
+      - service_bus
+    environment:
+      - SPRING_APPLICATION_JSON={"logging":{"path":"/opt/logs"},"spring":{"cloud":{"stream":{"kafka":{"binder":{"zkNodes":"kafka","brokers":"kafka","zkSessionTimeout":"30000","zkConnectionTimeout":"30000"}}}},"boot":{"admin":{"url":"http://monitoring:8080/"},"client":{"prefer-ip":"true"}}}}
+
+  unified-log-consumer:
+    image: edmp_consumer
+    networks:
+      - service_bus
+    environment:
+      - SPRING_APPLICATION_JSON={"logging":{"path":"/opt/logs"},"spring":{"cloud":{"stream":{"kafka":{"binder":{"zkNodes":"kafka","brokers":"kafka","zkSessionTimeout":"30000","zkConnectionTimeout":"30000"}}}},"boot":{"admin":{"url":"http://monitoring:8080/"},"client":{"prefer-ip":"true"}}}}
+
+  monitoring:
+    image: codecentric/edmp-monitoring
+    ports:
+      - "10001:8080"
+    networks:
+      - kafka_backend
+      - service_bus
+
+  kafka:
+    image: spotify/kafka
+#    ports:
+#      - "2182:2182"
+#      - "9092:9092"
+#      - "7209:7209"
+    environment:
+      JMX_PORT: 7209
+      ADVERTISED_HOST: kafka
+      ADVERTISED_PORT: 9092
+    networks:
+      - kafka_backend
+      - service_bus
+
+  kafka-manager:
+    image: sheepkiller/kafka-manager
+    ports:
+      - "29000:9000"
+    environment:
+      ZK_HOSTS: kafka:2181
+    networks:
+      - kafka_backend
+    depends_on:
+      - kafka
+
