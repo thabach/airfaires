@@ -1,2 +1,0 @@
-docker volume create --name maven-repo
-docker run --rm -it -v maven-repo:/root/.m2 -v "$(pwd)":/usr/src/mymaven -w /usr/src/mymaven edmp_maven mvn clean install
